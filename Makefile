@@ -6,7 +6,7 @@ PATHTOMUSL = ${HOME}/github/musl
 
 CFLAGS = -std=c11 -target x86_64-pc-linux-gnu-repo -nostdinc -nodefaultlibs -I$(PATHTOMUSL)/obj/include --sysroot $(PATHTOMUSL) -isystem $(PATHTOMUSL)/include
 
-%.elf: helloc.db %.o
+%.elf: %.o
 	repo2obj --repo=$^ -o $@
 
 .PHONY: all
@@ -15,11 +15,11 @@ all : helloc
 TICKETS = helloc.o ctr1_asm.o memcpy.o memset.o set_thread_area.o
 ELFS = $(TICKETS:%.o=%.elf)
 
-.PHONLY: clean
+.PHONY: clean
 clean:
 	rm $(TICKETS) $(ELFS)
 
-.PHONLY: distclean
+.PHONY: distclean
 distclean: clean
 	rm -f helloc.db
 
