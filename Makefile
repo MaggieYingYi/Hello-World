@@ -2,22 +2,24 @@
 # Makefile for building helloc.c using clang + musl-libc (requires GNU make)
 #
 
-PATHTOMUSL = ${HOME}/github/musl
+PATHTOMUSL = ${HOME}/musl-prepo
 
 CFLAGS = -std=c11 -target x86_64-pc-linux-gnu-repo -nostdinc -nodefaultlibs -I$(PATHTOMUSL)/obj/include --sysroot $(PATHTOMUSL) -isystem $(PATHTOMUSL)/include
 
 %.elf: %.o
-	repo2obj --repo=$^ -o $@
+	repo2obj --repo=helloc.db -o $@ $<
 
 .PHONY: all
-all : helloc
+all :
+	make helloc.db
+	make helloc
 
 TICKETS = helloc.o ctr1_asm.o memcpy.o memset.o set_thread_area.o
 ELFS = $(TICKETS:%.o=%.elf)
 
 .PHONY: clean
 clean:
-	rm $(TICKETS) $(ELFS)
+	rm $(TICKETS) $(ELFS) helloc
 
 .PHONY: distclean
 distclean: clean
