@@ -4,42 +4,48 @@
 
 PATHTOMUSL = ${HOME}/musl-prepo
 
-CFLAGS = -std=c11 -target x86_64-pc-linux-gnu-repo -nostdinc -nodefaultlibs -I$(PATHTOMUSL)/obj/include --sysroot $(PATHTOMUSL) -isystem $(PATHTOMUSL)/include
+CFLAGS = -std=c11 \
+	-target x86_64-pc-linux-gnu-repo \
+	-nostdinc \
+	-nodefaultlibs \
+	-I $(PATHTOMUSL)/obj/include \
+	--sysroot $(PATHTOMUSL) \
+	-isystem $(PATHTOMUSL)/include
 
 %.elf: %.o
 	repo2obj --repo=helloc.db -o $@ $<
 
 .PHONY: all
 all :
-	make helloc.db
-	make helloc
+	$(MAKE) helloc.db
+	$(MAKE) helloc
 
 TICKETS = helloc.o ctr1_asm.o memcpy.o memset.o set_thread_area.o
 ELFS = $(TICKETS:%.o=%.elf)
 
 .PHONY: clean
 clean:
-	rm $(TICKETS) $(ELFS) helloc
+	-rm $(TICKETS) $(ELFS) helloc
 
 .PHONY: distclean
 distclean: clean
-	rm -f helloc.db
+	-rm -f helloc.db
 
 helloc.db: helloc.json
 	-rm -f $@
 	pstore-import $@ $<
 
-helloc.o: helloc.db helloc.c
-	REPOFILE=$*.db	clang $(CFLAGS) -c -o $@ $*.c
+helloc.o: helloc.c
+	REPOFILE=helloc.db $(CC) $(CFLAGS) -c -o $@ $^
 
 ctr1_asm.o: helloc.db
-	repo-create-ticket --output=./$@ --repo=$< 0d89c794f89f75747df70d0f6b2832ed
+	repo-create-ticket --output=$@ --repo=$< 0d89c794f89f75747df70d0f6b2832ed
 memcpy.o: helloc.db
-	repo-create-ticket --output=./$@ --repo=$< 4c9f1d7ecaca97ea2d3ff025d2ac3f23
+	repo-create-ticket --output=$@ --repo=$< 4c9f1d7ecaca97ea2d3ff025d2ac3f23
 memset.o: helloc.db
-	repo-create-ticket --output=./$@ --repo=$< e0adc5a2801f47044a03f962ec0634e8
+	repo-create-ticket --output=$@ --repo=$< e0adc5a2801f47044a03f962ec0634e8
 set_thread_area.o: helloc.db
-	repo-create-ticket --output=./$@ --repo=$< 61823da085f534c947264e1497f73741
+	repo-create-ticket --output=$@ --repo=$< 61823da085f534c947264e1497f73741
 
 MUSL_OBJECTS = \
 	$(PATHTOMUSL)/obj/src/stdio/printf.o.elf \
